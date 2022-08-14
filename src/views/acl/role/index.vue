@@ -1,5 +1,5 @@
 <template>
-Role
+  <div>Role</div>
 </template>
 
 <script lang="ts">
@@ -10,10 +10,6 @@ Role
   });
 </script>
 
-<script lang="ts" setup>
+<script lang="ts" setup></script>
 
-</script>
-
-<style lang="less" scoped>
-  
-</style>
+<style lang="less" scoped></style>

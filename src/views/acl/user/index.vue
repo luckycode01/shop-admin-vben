@@ -1,5 +1,5 @@
 <template>
-User
+  <div> User</div>
 </template>
 
 <script lang="ts">
@@ -10,10 +10,6 @@ User
   });
 </script>
 
-<script lang="ts" setup>
+<script lang="ts" setup></script>
 
-</script>
-
-<style lang="less" scoped>
-  
-</style>
+<style lang="less" scoped></style>
