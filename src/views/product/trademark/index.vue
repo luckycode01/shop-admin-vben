@@ -8,16 +8,24 @@
       <Table
         :dataSource="dataSource"
         :columns="columns"
-        :pagenation="{
+        bordered
+        :row-class-name="(_record, index) => (index % 2 === 1 ? 'table-striped' : null)"
+        :pagination="{
           current,
-          pagesize,
+          pageSize,
           total,
           pageSizeOptions: [3, 6, 9, 12],
-          showQuickJumpr: true,
+          showQuickJumper: true,
           showSizeChanger: true,
           showTotal: (total) => `总共${total}条`,
+          onChange: handleChangePage,
         }"
       >
+        <template #bodyCell="{ record, index, column, text }">
+          <template v-if="column.dataIndex === 'age'"
+            >{{ record }}---------{{ index }}++++ {{ column }}-------{{ text }}
+          </template>
+        </template>
       </Table>
     </Card>
   </div>
@@ -38,18 +46,20 @@
   const columns = [
     {
       title: '序号',
-      dataIndex: 'key',
-      key: 'name',
+      dataIndex: 'index',
+      className: '!text-center w-80px',
+    },
+    {
+      title: '姓名',
+      dataIndex: 'name',
     },
     {
       title: '年龄',
       dataIndex: 'age',
-      key: 'age',
     },
     {
       title: '住址',
       dataIndex: 'address',
-      key: 'address',
     },
   ];
 
@@ -69,8 +79,12 @@
   ];
 
   const current = ref<number>(1);
-  const pagesize = ref<number>(3);
+  const pageSize = ref<number>(3);
   const total = ref<number>(100);
+
+  const handleChangePage = (current, pageSize) => {
+    console.log(current, pageSize);
+  };
 </script>
 
 <style lang="less" scoped></style>
