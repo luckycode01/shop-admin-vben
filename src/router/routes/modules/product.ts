@@ -16,6 +16,33 @@ const product: AppRouteModule = {
   },
   children: [
     {
+      path: 'productList',
+      name: 'Productlist',
+      component: () => import('/@/views/product/proList/index.vue'),
+      meta: {
+        // affix: true,
+        title: t('routes.product.productList'),
+      },
+    },
+    {
+      path: 'cateparams',
+      name: 'Cateparams',
+      component: () => import('/@/views/product/cateParams/index.vue'),
+      meta: {
+        // affix: true,
+        title: t('routes.product.cateParams'),
+      },
+    },
+    {
+      path: 'productcate',
+      name: 'Productcate',
+      component: () => import('/@/views/product/category/index.vue'),
+      meta: {
+        // affix: true,
+        title: t('routes.product.productCate'),
+      },
+    },
+    {
       path: 'trademark',
       name: 'Trademark',
       component: () => import('/@/views/product/trademark/index.vue'),

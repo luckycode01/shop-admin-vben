@@ -109,7 +109,6 @@
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
     "rollup-plugin-visualizer": "^5.5.2",
-    "stylelint": "^14.0.1",
     "stylelint-config-html": "^1.0.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^23.0.0",

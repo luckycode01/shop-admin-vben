@@ -4,4 +4,7 @@ export default {
   sku: 'SKU',
   spu: 'SPU',
   attr: 'Attribute ',
+  productList: 'Product List',
+  cateParams: 'Cate params',
+  productCate: 'Product Cate',
 };

@@ -16,8 +16,8 @@ const acl: AppRouteModule = {
   },
   children: [
     {
-      path: 'user',
-      name: 'User',
+      path: 'users',
+      name: 'Users',
       component: () => import('/@/views/acl/user/index.vue'),
       meta: {
         // affix: true,
@@ -25,8 +25,8 @@ const acl: AppRouteModule = {
       },
     },
     {
-      path: 'role',
-      name: 'Role',
+      path: 'roles',
+      name: 'Roles',
       component: () => import('/@/views/acl/role/index.vue'),
       meta: {
         // affix: true,
