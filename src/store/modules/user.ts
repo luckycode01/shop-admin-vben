@@ -90,12 +90,18 @@ export const useUserStore = defineStore({
     ): Promise<GetUserInfoModel | null> {
       try {
         const { goHome = true, mode, ...loginParams } = params;
-        const data = await loginApi(loginParams, mode);
-        const { token } = data;
-
-        // save token
-        this.setToken(token);
-        return this.afterLoginAction(goHome);
+        const res = await loginApi(loginParams, mode);
+        if (res.meta.status != 200) Promise.reject(res);
+        else {
+          const { data } = res;
+          commit('SET_TOKEN', data.token);
+          commit('SET_NAME', data.username);
+          setUsername(data.username);
+          Promise.resolve(res);
+          // save token
+          this.setToken(data.token);
+          return this.afterLoginAction(goHome);
+        }
       } catch (error) {
         return Promise.reject(error);
       }

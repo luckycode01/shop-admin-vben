@@ -10,6 +10,18 @@ export interface RoleInfo {
   roleName: string;
   value: string;
 }
+export interface metaInfo {
+  status: number;
+  msg: string;
+}
+export interface dataInfo {
+  id: number;
+  rid: number;
+  email: string;
+  mobile: string;
+  token: string;
+  username: string;
+}
 
 /**
  * @description: Login interface return value
@@ -18,6 +30,8 @@ export interface LoginResultModel {
   userId: string | number;
   token: string;
   role: RoleInfo;
+  meta: metaInfo;
+  data: dataInfo;
 }
 
 /**
