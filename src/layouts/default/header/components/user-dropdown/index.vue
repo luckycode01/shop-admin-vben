@@ -48,7 +48,7 @@
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useModal } from '/@/components/Modal';
 
-  import headerImg from '/@/assets/images/header.jpg';
+  import headerImg from '/@/assets/images/avatar.jpg';
   import { propTypes } from '/@/utils/propTypes';
   import { openWindow } from '/@/utils';
 
@@ -75,7 +75,7 @@
       const userStore = useUserStore();
 
       const getUserInfo = computed(() => {
-        const { realName = '', avatar, desc } = userStore.getUserInfo || {};
+        const { realName, avatar, desc } = userStore.getUserInfo || {};
         return { realName, avatar: avatar || headerImg, desc };
       });
 

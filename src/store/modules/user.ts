@@ -87,19 +87,25 @@ export const useUserStore = defineStore({
         goHome?: boolean;
         mode?: ErrorMessageMode;
       },
-    ): Promise<GetUserInfoModel | null> {
+    ): Promise<GetUserInfoModel | null | string> {
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const res = await loginApi(loginParams, mode);
-        if (res.meta.status != 200) Promise.reject(res);
+        if (res.meta.status != 200) return Promise.reject(res.meta.msg);
         else {
           const { data } = res;
-          commit('SET_TOKEN', data.token);
-          commit('SET_NAME', data.username);
-          setUsername(data.username);
-          Promise.resolve(res);
           // save token
           this.setToken(data.token);
+
+          let userInfo: UserInfo = {
+            roles: [],
+            userId: data.id,
+            username: data.username,
+            realName: data.username,
+            avatar: 'http://127.0.0.1:8888/tmp_uploads/cf1f8fd3b8b51d2ed419f2c72cb5e09b.jpg',
+          };
+          this.setUserInfo(userInfo);
+          goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
           return this.afterLoginAction(goHome);
         }
       } catch (error) {
@@ -124,22 +130,28 @@ export const useUserStore = defineStore({
           router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
           permissionStore.setDynamicAddedRoute(true);
         }
-        goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
+        // goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
       }
       return userInfo;
     },
     async getUserInfoAction(): Promise<UserInfo | null> {
       if (!this.getToken) return null;
-      const userInfo = await getUserInfo();
-      const { roles = [] } = userInfo;
-      if (isArray(roles)) {
-        const roleList = roles.map((item) => item.value) as RoleEnum[];
-        this.setRoleList(roleList);
-      } else {
-        userInfo.roles = [];
-        this.setRoleList([]);
-      }
-      this.setUserInfo(userInfo);
+      const userInfo = {
+        roles: [],
+        userId: '',
+        username: '',
+        realName: '',
+        avatar: '/@/assets/img/avatar.jpg',
+      };
+      // const { roles = [] } = userInfo;
+      // if (isArray(roles)) {
+      //   const roleList = roles.map((item) => item.value) as RoleEnum[];
+      //   this.setRoleList(roleList);
+      // } else {
+      //   userInfo.roles = [];
+      //   this.setRoleList([]);
+      // }
+      // this.setUserInfo(userInfo);
       return userInfo;
     },
     /**
