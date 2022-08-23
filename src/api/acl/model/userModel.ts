@@ -22,12 +22,15 @@ export interface UsersListInfo {
 export type UsersListListModel = UsersListInfo[];
 
 export interface DataResUltModel {
-  totalpage: number;
+  total: number;
   pagenum: number;
   users: UsersListListModel;
 }
 
 export interface UsersResultModel {
   data: DataResUltModel;
+  meta: metaInfo;
+}
+export interface changeUserStateModel {
   meta: metaInfo;
 }

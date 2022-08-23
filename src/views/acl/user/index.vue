@@ -19,6 +19,7 @@
         >
       </Row>
       <Table
+        :row-key="(record) => record.id"
         :dataSource="usersList"
         :columns="columns"
         bordered
@@ -40,10 +41,9 @@
             {{ index + 1 }}
           </template>
         </template>
-        <template #mg_state="{ column, text }">
+        <template #mgState="{ record, column }">
           <template v-if="column.dataIndex === 'mg_state'">
-            {{ text }}
-            <Switch v-model:checked="userState"></Switch>
+            <Switch v-model:checked="record.mg_state" @change="handleUserState(record)"></Switch>
           </template>
         </template>
         <template #operation="{ column }">
@@ -67,11 +67,11 @@
 </script>
 
 <script lang="ts" setup>
-  import { Button, Card, Table, InputSearch, Row, Col, Switch } from 'ant-design-vue';
+  import { Button, Card, Table, InputSearch, Row, Col, Switch, message } from 'ant-design-vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
   import { ref, onMounted } from 'vue';
   import { UserParamsInfo, UsersListListModel } from '/@/api/acl/model/userModel';
-  import { getUsersListApi } from '/@/api/acl/user';
+  import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
 
   const columns = [
     {
@@ -109,7 +109,7 @@
       className: '!text-center ',
       dataIndex: 'mg_state',
       width: 'width',
-      slots: { customRender: 'mg_state' },
+      slots: { customRender: 'mgState' },
     },
     {
       title: '创建时间',
@@ -133,7 +133,6 @@
   const searchKey = ref<string>('');
   const loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
-  const userState = ref<boolean>(false);
   // const assignUser = reactive<UserModel>({
   //   id: '',
   //   username: '',
@@ -149,14 +148,26 @@
   const getUserList = async (params: UserParamsInfo) => {
     loading.value = true;
     const res = await getUsersListApi(params);
-    console.log('usersList', usersList);
-    console.log('res', res);
+    if (res.meta.status == 200) {
+      usersList.value = res.data && res.data.users;
+      total.value = res.data.total;
+    }
 
-    usersList.value = res.data && res.data.users;
     // total.value = res.total;
     // current.value = page;
     // pageSize.value = limit;
     loading.value = false;
+  };
+  // 修改用户状态
+  const handleUserState = async (record) => {
+    console.log(record.mg_state);
+    const res = await changeUsersStateApi(record.id, record.mg_state);
+    if (res.meta.status == 200) {
+      message.success(res.meta.msg);
+    } else {
+      message.error(res.meta.msg);
+    }
+    getUserList({ query: '', pagenum: 1, pagesize: 10 });
   };
 
   onMounted(() => {
