@@ -4,7 +4,7 @@
       <Row :gutter="24">
         <Col span="6">
           <input-search
-            v-model:searchKey="searchKey"
+            v-model:value="userParams.query"
             placeholder="请输入用户名"
             enter-button
             @search="handleSearch"
@@ -46,6 +46,9 @@
             <Switch v-model:checked="record.mg_state" @change="handleUserState(record)"></Switch>
           </template>
         </template>
+        <template #createTime="{ text }">
+          {{ handleTime(text) }}
+        </template>
         <template #operation="{ column }">
           <template v-if="column.dataIndex === 'operation'">
             <Button type="primary" :size="size">修改</Button>
@@ -69,9 +72,10 @@
 <script lang="ts" setup>
   import { Button, Card, Table, InputSearch, Row, Col, Switch, message } from 'ant-design-vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, reactive } from 'vue';
   import { UserParamsInfo, UsersListListModel } from '/@/api/acl/model/userModel';
   import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
+  import _ from 'lodash';
 
   const columns = [
     {
@@ -116,6 +120,7 @@
       className: '!text-center ',
       dataIndex: 'create_time',
       width: 'width',
+      slots: { customRender: 'createTime' },
     },
     {
       title: '操作',
@@ -130,9 +135,13 @@
   const pageSize = ref<number>(5);
   const total = ref<number>(100);
   const size = ref<SizeType>('small');
-  const searchKey = ref<string>('');
   const loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
+  const userParams = reactive<UserParamsInfo>({
+    query: '',
+    pagenum: 1,
+    pagesize: 10,
+  });
   // const assignUser = reactive<UserModel>({
   //   id: '',
   //   username: '',
@@ -142,9 +151,9 @@
   const handleChangePage = (current, pageSize) => {
     console.log(current, pageSize);
   };
-  const handleSearch = () => {
-    console.log('handleSearch');
-  };
+  const handleSearch = _.debounce(() => {
+    getUserList(userParams);
+  }, 600);
   const getUserList = async (params: UserParamsInfo) => {
     loading.value = true;
     const res = await getUsersListApi(params);
@@ -169,9 +178,19 @@
     }
     getUserList({ query: '', pagenum: 1, pagesize: 10 });
   };
+  const handleTime = (time) => {
+    let date = new Date(time);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let min = date.getMinutes();
+    let sec = date.getSeconds();
+    return `${year}-${month}-${day} ${hours}:${min}:${sec}`;
+  };
 
   onMounted(() => {
-    getUserList({ query: '', pagenum: 1, pagesize: 10 });
+    getUserList(userParams);
   });
 </script>
 
