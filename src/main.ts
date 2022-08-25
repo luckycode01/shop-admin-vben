@@ -22,9 +22,36 @@ if (import.meta.env.DEV) {
   import('ant-design-vue/dist/antd.less');
 }
 
+import {
+  Button,
+  Card,
+  Table,
+  InputSearch,
+  Row,
+  Col,
+  Switch,
+  message,
+  Modal,
+  Form,
+  FormItem,
+  Input,
+} from 'ant-design-vue';
+
 async function bootstrap() {
   const app = createApp(App);
 
+  app.component('Button', Button);
+  app.component('Table', Table);
+  app.component('InputSearch', InputSearch);
+  app.component('Row', Row);
+  app.component('Card', Card);
+  app.component('Col', Col);
+  app.component('Switch', Switch);
+  app.component('Modal', Modal);
+  app.component('Form', Form);
+  app.component('FormItem', FormItem);
+  app.component('Input', Input);
+  app.config.globalProperties.$message = message;
   // Configure store
   setupStore(app);
 

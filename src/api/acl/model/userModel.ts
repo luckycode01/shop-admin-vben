@@ -34,3 +34,10 @@ export interface UsersResultModel {
 export interface changeUserStateModel {
   meta: metaInfo;
 }
+export interface UserInfoModel {
+  id?: number;
+  userName: string;
+  userPass: string;
+  email: string;
+  phone: string;
+}

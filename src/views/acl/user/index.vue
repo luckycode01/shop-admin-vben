@@ -12,7 +12,7 @@
           />
         </Col>
         <Col span="6">
-          <Button type="primary">
+          <Button type="primary" @click="handleOpenAddOrEdit()">
             <template #icon><plus-outlined /></template>
             添加用户
           </Button></Col
@@ -47,22 +47,55 @@
           </template>
         </template>
         <template #createTime="{ text }">
-          {{ handleTime(text) }}
+          {{ dateFormat(text) }}
         </template>
-        <template #operation="{ column }">
+        <template #operation="{ column, record }">
           <template v-if="column.dataIndex === 'operation'">
-            <Button type="primary" :size="size">修改</Button>
+            <Button type="primary" @click="handleOpenAddOrEdit(record.id)" :size="size"
+              >修改</Button
+            >
             <Button danger :size="size" class="ml-20px">删除</Button>
           </template>
         </template>
       </Table>
     </Card>
+
+    <Modal v-model:visible="addOrEditUserDialog" :title="dialogTitle">
+      <template #footer>
+        <a-button key="back" @click="handleCancel">取消</a-button>
+        <a-button key="submit" type="primary" :loading="loading" @click="handleAddOrEditOk"
+          >确定</a-button
+        >
+      </template>
+      <Form
+        class="!mt-30px !ml-20px"
+        ref="formRef"
+        :model="userInfo"
+        :rules="rules"
+        :label-col="{ span: 5 }"
+        :wrapper-col="{ span: 14 }"
+      >
+        <FormItem :label="'用户名称'" name="userName">
+          <Input v-model:value="userInfo.userName" />
+        </FormItem>
+        <FormItem v-if="!userInfo.id" :label="'用户密码'" name="userPass">
+          <Input v-model:value="userInfo.userPass" />
+        </FormItem>
+        <FormItem :label="'用户邮箱'" name="email">
+          <Input v-model:value="userInfo.email" />
+        </FormItem>
+        <FormItem :label="'用户电话'" name="phone">
+          <Input v-model:value="userInfo.phone" />
+        </FormItem>
+      </Form>
+    </Modal>
   </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from 'vue';
   import { SizeType } from 'ant-design-vue/lib/config-provider';
+  import { time } from 'console';
   // 为了定义组件名称
   export default defineComponent({
     name: 'User',
@@ -70,90 +103,86 @@
 </script>
 
 <script lang="ts" setup>
-  import { Button, Card, Table, InputSearch, Row, Col, Switch, message } from 'ant-design-vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
-  import { ref, onMounted, reactive } from 'vue';
-  import { UserParamsInfo, UsersListListModel } from '/@/api/acl/model/userModel';
+  import {
+    ref,
+    onMounted,
+    reactive,
+    UnwrapRef,
+    getCurrentInstance,
+    ComponentInternalInstance,
+  } from 'vue';
+  import { UserParamsInfo, UsersListListModel, UserInfoModel } from '/@/api/acl/model/userModel';
   import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
+  import { columns } from './userIndex';
+  import { dateFormat } from '/@/utils/dateFormat';
   import _ from 'lodash';
+  const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
-  const columns = [
-    {
-      title: '序号',
-      dataIndex: 'index',
-      className: '!text-center w-80px',
-      slots: { customRender: 'index' },
-    },
-    {
-      title: '用户名 ',
-      dataIndex: 'username',
-      className: '!text-center w-200px',
-      width: 'width',
-    },
-    {
-      title: '邮箱',
-      className: '!text-center ',
-      dataIndex: 'email',
-      width: 'width',
-    },
-    {
-      title: '电话',
-      className: '!text-center ',
-      dataIndex: 'mobile',
-      width: 'width',
-    },
-    {
-      title: '角色',
-      className: '!text-center ',
-      dataIndex: 'role_name',
-      width: 'width',
-    },
-    {
-      title: '状态',
-      className: '!text-center ',
-      dataIndex: 'mg_state',
-      width: 'width',
-      slots: { customRender: 'mgState' },
-    },
-    {
-      title: '创建时间',
-      className: '!text-center ',
-      dataIndex: 'create_time',
-      width: 'width',
-      slots: { customRender: 'createTime' },
-    },
-    {
-      title: '操作',
-      className: '!text-center w-80px',
-      width: 200,
-      dataIndex: 'operation',
-      fixed: 'right',
-      slots: { customRender: 'operation' },
-    },
-  ];
   const current = ref<number>(1);
   const pageSize = ref<number>(5);
   const total = ref<number>(100);
   const size = ref<SizeType>('small');
   const loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
+  const addOrEditUserDialog = ref<Boolean>(false);
+  let dialogTitle = ref<string>('');
   const userParams = reactive<UserParamsInfo>({
     query: '',
     pagenum: 1,
     pagesize: 10,
+  });
+  const rules = {
+    // 要求：规则名称必须和表单数据的名称一致
+    userName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+    userPass: [{ required: true, message: '请输入用户密码', trigger: 'blur' }],
+  };
+  // 添加或修改用户表单
+  const userInfo: UnwrapRef<UserInfoModel> = reactive({
+    userName: '',
+    userPass: '',
+    email: '',
+    phone: '',
   });
   // const assignUser = reactive<UserModel>({
   //   id: '',
   //   username: '',
   //   roleName: [],
   // });
+  // 打开添加修改对话框
+  const handleOpenAddOrEdit = (id?: number) => {
+    if (id) {
+      dialogTitle.value = '编辑用户';
+      console.log(id);
+    } else {
+      dialogTitle.value = '添加用户';
+    }
+    addOrEditUserDialog.value = true;
+  };
+  //保存 添加、修改用户
+  const handleAddOrEditOk = () => {
+    // addOrEditUserDialog.value = true;
+  };
+  const handleCancel = () => {
+    addOrEditUserDialog.value = false;
+    reset();
+  };
+  const reset = () => {
+    userInfo.userName = '';
+    userInfo.userPass = '';
+    userInfo.email = '';
+    userInfo.phone = '';
+  };
 
+  // 分页器
   const handleChangePage = (current, pageSize) => {
     console.log(current, pageSize);
   };
+  //搜索，节流防抖的使用
   const handleSearch = _.debounce(() => {
     getUserList(userParams);
   }, 600);
+  // 获取用户列表
   const getUserList = async (params: UserParamsInfo) => {
     loading.value = true;
     const res = await getUsersListApi(params);
@@ -161,32 +190,17 @@
       usersList.value = res.data && res.data.users;
       total.value = res.data.total;
     }
-
-    // total.value = res.total;
-    // current.value = page;
-    // pageSize.value = limit;
     loading.value = false;
   };
   // 修改用户状态
   const handleUserState = async (record) => {
-    console.log(record.mg_state);
     const res = await changeUsersStateApi(record.id, record.mg_state);
     if (res.meta.status == 200) {
-      message.success(res.meta.msg);
+      proxy?.$message.success(res.meta.msg);
     } else {
-      message.error(res.meta.msg);
+      proxy?.$message.error(res.meta.msg);
     }
     getUserList({ query: '', pagenum: 1, pagesize: 10 });
-  };
-  const handleTime = (time) => {
-    let date = new Date(time);
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let hours = date.getHours();
-    let min = date.getMinutes();
-    let sec = date.getSeconds();
-    return `${year}-${month}-${day} ${hours}:${min}:${sec}`;
   };
 
   onMounted(() => {
@@ -194,4 +208,14 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less">
+  .ant-modal-header {
+    text-align: center;
+  }
+  .ant-modal-body {
+    padding: 0;
+  }
+  .ant-modal-footer {
+    padding: 10px 100px;
+  }
+</style>
