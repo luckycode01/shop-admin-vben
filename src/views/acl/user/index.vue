@@ -95,7 +95,6 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import { SizeType } from 'ant-design-vue/lib/config-provider';
-  import { time } from 'console';
   // 为了定义组件名称
   export default defineComponent({
     name: 'User',
@@ -103,21 +102,14 @@
 </script>
 
 <script lang="ts" setup>
+  import { message } from 'ant-design-vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
-  import {
-    ref,
-    onMounted,
-    reactive,
-    UnwrapRef,
-    getCurrentInstance,
-    ComponentInternalInstance,
-  } from 'vue';
+  import { ref, onMounted, reactive, UnwrapRef } from 'vue';
   import { UserParamsInfo, UsersListListModel, UserInfoModel } from '/@/api/acl/model/userModel';
   import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
   import { columns } from './userIndex';
   import { dateFormat } from '/@/utils/dateFormat';
   import _ from 'lodash';
-  const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
   const current = ref<number>(1);
   const pageSize = ref<number>(5);
@@ -126,6 +118,7 @@
   const loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
   const addOrEditUserDialog = ref<Boolean>(false);
+  const formRef = ref();
   let dialogTitle = ref<string>('');
   const userParams = reactive<UserParamsInfo>({
     query: '',
@@ -160,8 +153,14 @@
     addOrEditUserDialog.value = true;
   };
   //保存 添加、修改用户
-  const handleAddOrEditOk = () => {
+  const handleAddOrEditOk = async () => {
     // addOrEditUserDialog.value = true;
+    try {
+      const values = await formRef.value.validateFields();
+      console.log('Success:', values);
+    } catch (errorInfo) {
+      console.log('Failed:', errorInfo);
+    }
   };
   const handleCancel = () => {
     addOrEditUserDialog.value = false;
@@ -196,9 +195,9 @@
   const handleUserState = async (record) => {
     const res = await changeUsersStateApi(record.id, record.mg_state);
     if (res.meta.status == 200) {
-      proxy?.$message.success(res.meta.msg);
+      message.success(res.meta.msg);
     } else {
-      proxy?.$message.error(res.meta.msg);
+      message.error(res.meta.msg);
     }
     getUserList({ query: '', pagenum: 1, pagesize: 10 });
   };
