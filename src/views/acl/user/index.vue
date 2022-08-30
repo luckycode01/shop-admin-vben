@@ -104,6 +104,7 @@
 <script lang="ts" setup>
   import { message } from 'ant-design-vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
+  import { RuleObject } from 'ant-design-vue/es/form/interface';
   import { ref, onMounted, reactive, UnwrapRef } from 'vue';
   import { UserParamsInfo, UsersListListModel, UserInfoModel } from '/@/api/acl/model/userModel';
   import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
@@ -125,10 +126,50 @@
     pagenum: 1,
     pagesize: 10,
   });
+  let checkUserName = async (_rule: RuleObject, value: string) => {
+    if (!value) {
+      return Promise.reject('请输入用户名称');
+    }
+    if (value.length > 15 || value.length < 3) {
+      return Promise.reject('用户名长度为3—15个字符');
+    } else {
+      return Promise.resolve();
+    }
+  };
+  let checkUserPass = async (_rule: RuleObject, value: string) => {
+    if (!value) {
+      return Promise.reject('请输入用户密码');
+    }
+    if (value.length > 15 || value.length < 6) {
+      return Promise.reject('用户名长度为6—15个字符');
+    } else {
+      return Promise.resolve();
+    }
+  };
+  let checkEmail = async (_rule: RuleObject, value: string) => {
+    const reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    if (!value) return Promise.resolve();
+    if (!reg.test(value)) {
+      return Promise.reject('邮箱格式有误');
+    } else {
+      return Promise.resolve();
+    }
+  };
+  let checkPhone = async (_rule: RuleObject, value: string) => {
+    const reg = /^1[34578]\d{9}/;
+    if (!value) return Promise.resolve();
+    if (!reg.test(value)) {
+      return Promise.reject('请输入正确手机号');
+    } else {
+      return Promise.resolve();
+    }
+  };
   const rules = {
-    // 要求：规则名称必须和表单数据的名称一致
-    userName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
-    userPass: [{ required: true, message: '请输入用户密码', trigger: 'blur' }],
+    // 规则名称必须和表单数据的名称一致
+    userName: [{ required: true, validator: checkUserName, trigger: 'blur' }],
+    userPass: [{ required: true, validator: checkUserPass, trigger: 'blur' }],
+    email: [{ required: false, validator: checkEmail, trigger: 'blur' }],
+    phone: [{ required: false, validator: checkPhone, trigger: 'blur' }],
   };
   // 添加或修改用户表单
   const userInfo: UnwrapRef<UserInfoModel> = reactive({
@@ -146,7 +187,6 @@
   const handleOpenAddOrEdit = (id?: number) => {
     if (id) {
       dialogTitle.value = '编辑用户';
-      console.log(id);
     } else {
       dialogTitle.value = '添加用户';
     }
@@ -156,8 +196,7 @@
   const handleAddOrEditOk = async () => {
     // addOrEditUserDialog.value = true;
     try {
-      const values = await formRef.value.validateFields();
-      console.log('Success:', values);
+      await formRef.value.validateFields();
     } catch (errorInfo) {
       console.log('Failed:', errorInfo);
     }
