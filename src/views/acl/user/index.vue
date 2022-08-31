@@ -60,7 +60,7 @@
       </Table>
     </Card>
 
-    <Modal v-model:visible="addOrEditUserDialog" :title="dialogTitle">
+    <Modal v-model:visible="addOrEditUserDialog" :title="dialogTitle" @cancel="closeDialog">
       <template #footer>
         <a-button key="back" @click="handleCancel">取消</a-button>
         <a-button key="submit" type="primary" :loading="loading" @click="handleAddOrEditOk"
@@ -69,23 +69,23 @@
       </template>
       <Form
         class="!mt-30px !ml-20px"
-        ref="formRef"
+        ref="addOrEditFormRef"
         :model="userInfo"
         :rules="rules"
         :label-col="{ span: 5 }"
         :wrapper-col="{ span: 14 }"
       >
-        <FormItem :label="'用户名称'" name="userName">
-          <Input v-model:value="userInfo.userName" />
+        <FormItem :label="'用户名称'" name="username">
+          <Input v-model:value="userInfo.username" :disabled="userInfo.id ? true : false" />
         </FormItem>
-        <FormItem v-if="!userInfo.id" :label="'用户密码'" name="userPass">
-          <Input v-model:value="userInfo.userPass" />
+        <FormItem v-if="!userInfo.id" :label="'用户密码'" name="password">
+          <Input v-model:value="userInfo.password" />
         </FormItem>
         <FormItem :label="'用户邮箱'" name="email">
           <Input v-model:value="userInfo.email" />
         </FormItem>
-        <FormItem :label="'用户电话'" name="phone">
-          <Input v-model:value="userInfo.phone" />
+        <FormItem :label="'用户电话'" name="mobile">
+          <Input v-model:value="userInfo.mobile" />
         </FormItem>
       </Form>
     </Modal>
@@ -95,6 +95,7 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import { SizeType } from 'ant-design-vue/lib/config-provider';
+  import user from 'mock/sys/user';
   // 为了定义组件名称
   export default defineComponent({
     name: 'User',
@@ -107,7 +108,13 @@
   import { RuleObject } from 'ant-design-vue/es/form/interface';
   import { ref, onMounted, reactive, UnwrapRef } from 'vue';
   import { UserParamsInfo, UsersListListModel, UserInfoModel } from '/@/api/acl/model/userModel';
-  import { getUsersListApi, changeUsersStateApi } from '/@/api/acl/user';
+  import {
+    getUsersListApi,
+    changeUsersStateApi,
+    addUserApi,
+    searchUserInfoApi,
+    editUserInfoApi,
+  } from '/@/api/acl/user';
   import { columns } from './userIndex';
   import { dateFormat } from '/@/utils/dateFormat';
   import _ from 'lodash';
@@ -119,7 +126,7 @@
   const loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
   const addOrEditUserDialog = ref<Boolean>(false);
-  const formRef = ref();
+  const addOrEditFormRef = ref();
   let dialogTitle = ref<string>('');
   const userParams = reactive<UserParamsInfo>({
     query: '',
@@ -155,7 +162,7 @@
       return Promise.resolve();
     }
   };
-  let checkPhone = async (_rule: RuleObject, value: string) => {
+  let checkMobile = async (_rule: RuleObject, value: string) => {
     const reg = /^1[34578]\d{9}/;
     if (!value) return Promise.resolve();
     if (!reg.test(value)) {
@@ -166,17 +173,17 @@
   };
   const rules = {
     // 规则名称必须和表单数据的名称一致
-    userName: [{ required: true, validator: checkUserName, trigger: 'blur' }],
-    userPass: [{ required: true, validator: checkUserPass, trigger: 'blur' }],
+    username: [{ required: true, validator: checkUserName, trigger: 'blur' }],
+    password: [{ required: true, validator: checkUserPass, trigger: 'blur' }],
     email: [{ required: false, validator: checkEmail, trigger: 'blur' }],
-    phone: [{ required: false, validator: checkPhone, trigger: 'blur' }],
+    mobile: [{ required: false, validator: checkMobile, trigger: 'blur' }],
   };
   // 添加或修改用户表单
-  const userInfo: UnwrapRef<UserInfoModel> = reactive({
-    userName: '',
-    userPass: '',
+  let userInfo: UnwrapRef<UserInfoModel> = reactive({
+    username: '',
+    password: '',
     email: '',
-    phone: '',
+    mobile: '',
   });
   // const assignUser = reactive<UserModel>({
   //   id: '',
@@ -184,9 +191,22 @@
   //   roleName: [],
   // });
   // 打开添加修改对话框
-  const handleOpenAddOrEdit = (id?: number) => {
+  const handleOpenAddOrEdit = async (id?: number) => {
     if (id) {
       dialogTitle.value = '编辑用户';
+      userInfo.id = id;
+      try {
+        const res = await searchUserInfoApi(id);
+        if (res.meta.status == 200) {
+          userInfo.username = res.data.username;
+          userInfo.email = res.data.email;
+          userInfo.mobile = res.data.mobile;
+        } else {
+          message.error(res.meta.msg);
+        }
+      } catch (error) {
+        message.error('用户查询失败');
+      }
     } else {
       dialogTitle.value = '添加用户';
     }
@@ -196,20 +216,53 @@
   const handleAddOrEditOk = async () => {
     // addOrEditUserDialog.value = true;
     try {
-      await formRef.value.validateFields();
+      await addOrEditFormRef.value.validateFields();
+      let params = userInfo;
+      // addUserApi
+      if (!userInfo.id) {
+        const res = await addUserApi(params);
+        if (res.meta.status == 201) {
+          message.success(res.meta.msg);
+        } else {
+          message.error(res.meta.msg);
+        }
+        addOrEditUserDialog.value = false;
+        addOrEditFormRef.value.resetFields();
+        // addOrEditFormRef.resetFields();
+        loading.value = false;
+      } else if (userInfo.id) {
+        delete params.username;
+        delete params.password;
+        const res = await editUserInfoApi(userInfo.id, params);
+        if (res.meta.status == 200) {
+          message.success(res.meta.msg);
+        } else {
+          message.error(res.meta.msg);
+        }
+        addOrEditUserDialog.value = false;
+        addOrEditFormRef.value.resetFields();
+        // addOrEditFormRef.resetFields();
+        loading.value = false;
+      }
     } catch (errorInfo) {
-      console.log('Failed:', errorInfo);
+      message.error('用户信息不完整');
     }
   };
   const handleCancel = () => {
     addOrEditUserDialog.value = false;
+    addOrEditFormRef.value.resetFields();
+    reset();
+  };
+  const closeDialog = () => {
+    addOrEditFormRef.value.resetFields();
     reset();
   };
   const reset = () => {
-    userInfo.userName = '';
-    userInfo.userPass = '';
+    userInfo.username = '';
+    userInfo.password = '';
     userInfo.email = '';
-    userInfo.phone = '';
+    userInfo.mobile = '';
+    delete userInfo.id;
   };
 
   // 分页器
