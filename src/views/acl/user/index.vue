@@ -54,7 +54,7 @@
             <Button type="primary" @click="handleOpenAddOrEdit(record.id)" :size="size"
               >修改</Button
             >
-            <Button danger :size="size" class="ml-20px">删除</Button>
+            <Button danger :size="size" class="ml-20px" @click="handleDelete">删除</Button>
           </template>
         </template>
       </Table>
@@ -247,6 +247,9 @@
       message.error('用户信息不完整');
     }
   };
+
+  // 删除
+  const handleDelete = () => {};
   const handleCancel = () => {
     addOrEditUserDialog.value = false;
     addOrEditFormRef.value.resetFields();
