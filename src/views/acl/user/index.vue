@@ -95,7 +95,6 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import { SizeType } from 'ant-design-vue/lib/config-provider';
-  import user from 'mock/sys/user';
   // 为了定义组件名称
   export default defineComponent({
     name: 'User',
