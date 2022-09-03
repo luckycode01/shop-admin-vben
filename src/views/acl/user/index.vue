@@ -29,11 +29,12 @@
           current,
           pageSize,
           total,
-          pageSizeOptions: ['5', '10', '15', '20'],
+          pageSizeOptions: ['3', '5', '10', '20'],
           showQuickJumper: true,
           showSizeChanger: true,
           showTotal: (total) => `总共${total}条`,
           onChange: handleChangePage,
+          onShowSizeChange: handSizeChange,
         }"
       >
         <template #index="{ index, column }">
@@ -51,10 +52,22 @@
         </template>
         <template #operation="{ column, record }">
           <template v-if="column.dataIndex === 'operation'">
-            <Button type="primary" @click="handleOpenAddOrEdit(record.id)" :size="size"
+            <Button
+              type="primary"
+              shape="circle"
+              @click="handleOpenAddOrEdit(record.id)"
+              :size="size"
               >修改</Button
             >
-            <Button danger :size="size" class="ml-20px" @click="handleDelete">删除</Button>
+            <popconfirm
+              title="是否删除该用户?"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="confirmDelete(record.id)"
+              @cancel="cancelDelete"
+            >
+              <Button danger :size="size" shape="circle" class="ml-20px">删除</Button>
+            </popconfirm>
           </template>
         </template>
       </Table>
@@ -113,24 +126,25 @@
     addUserApi,
     searchUserInfoApi,
     editUserInfoApi,
+    deleteUserInfoApi,
   } from '/@/api/acl/user';
   import { columns } from './userIndex';
   import { dateFormat } from '/@/utils/dateFormat';
   import _ from 'lodash';
 
-  const current = ref<number>(1);
-  const pageSize = ref<number>(5);
-  const total = ref<number>(100);
+  let current = ref<number>(1);
+  let pageSize = ref<number>(3);
+  let total = ref<number>(100);
   const size = ref<SizeType>('small');
-  const loading = ref<boolean>(false);
+  let loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
-  const addOrEditUserDialog = ref<Boolean>(false);
-  const addOrEditFormRef = ref();
+  let addOrEditUserDialog = ref<Boolean>(false);
+  let addOrEditFormRef = ref();
   let dialogTitle = ref<string>('');
   const userParams = reactive<UserParamsInfo>({
     query: '',
     pagenum: 1,
-    pagesize: 10,
+    pagesize: 3,
   });
   let checkUserName = async (_rule: RuleObject, value: string) => {
     if (!value) {
@@ -184,11 +198,6 @@
     email: '',
     mobile: '',
   });
-  // const assignUser = reactive<UserModel>({
-  //   id: '',
-  //   username: '',
-  //   roleName: [],
-  // });
   // 打开添加修改对话框
   const handleOpenAddOrEdit = async (id?: number) => {
     if (id) {
@@ -243,13 +252,11 @@
         // addOrEditFormRef.resetFields();
         loading.value = false;
       }
+      getUserList();
     } catch (errorInfo) {
       message.error('用户信息不完整');
     }
   };
-
-  // 删除
-  const handleDelete = () => {};
   const handleCancel = () => {
     addOrEditUserDialog.value = false;
     addOrEditFormRef.value.resetFields();
@@ -268,15 +275,46 @@
   };
 
   // 分页器
-  const handleChangePage = (current, pageSize) => {
-    console.log(current, pageSize);
+  const handleChangePage = (currentPage, size) => {
+    current.value = currentPage;
+    pageSize.value = size;
+    getUserList();
   };
+  const handSizeChange = (currentPage, size) => {
+    if (currentPage == 1) current.value = currentPage;
+    else current.value = 1;
+    pageSize.value = size;
+    getUserList();
+  };
+  // 删除
+  const confirmDelete = async (userId) => {
+    const res = await deleteUserInfoApi(userId);
+    if (res.meta.status == 200) {
+      message.success(res.meta.msg);
+      if (usersList.value.length == 1 && current.value != 1) {
+        current.value--;
+      }
+      getUserList();
+    } else {
+      message.error(res.meta.msg);
+    }
+  };
+  const cancelDelete = () => {};
+
   //搜索，节流防抖的使用
   const handleSearch = _.debounce(() => {
-    getUserList(userParams);
+    getUserList();
   }, 600);
   // 获取用户列表
-  const getUserList = async (params: UserParamsInfo) => {
+  const getUserList = async () => {
+    let params: UserParamsInfo = {
+      query: '',
+      pagenum: 1,
+      pagesize: 3,
+    };
+    params.pagesize = pageSize.value;
+    params.pagenum = current.value;
+    params.query = userParams.query;
     loading.value = true;
     const res = await getUsersListApi(params);
     if (res.meta.status == 200) {
@@ -293,11 +331,11 @@
     } else {
       message.error(res.meta.msg);
     }
-    getUserList({ query: '', pagenum: 1, pagesize: 10 });
+    getUserList();
   };
 
   onMounted(() => {
-    getUserList(userParams);
+    getUserList();
   });
 </script>
 

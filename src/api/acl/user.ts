@@ -6,6 +6,7 @@ import {
   UserInfoModel,
   AddUsersResultModel,
   searchUsersResultModel,
+  deleteUsersResultModel,
 } from './model/userModel';
 
 import { ErrorMessageMode } from '/#/axios';
@@ -71,6 +72,17 @@ export function editUserInfoApi(
       url: Api.Users,
       params: `/${id}`,
       data: params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+export function deleteUserInfoApi(id: number, mode: ErrorMessageMode = 'modal') {
+  return defHttp.delete<deleteUsersResultModel>(
+    {
+      url: Api.Users,
+      params: `/${id}`,
     },
     {
       errorMessageMode: mode,

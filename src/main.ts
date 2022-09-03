@@ -35,6 +35,7 @@ import {
   Form,
   FormItem,
   Input,
+  Popconfirm,
 } from 'ant-design-vue';
 
 async function bootstrap() {
@@ -51,6 +52,7 @@ async function bootstrap() {
   app.component('Form', Form);
   app.component('FormItem', FormItem);
   app.component('Input', Input);
+  app.component('Popconfirm', Popconfirm);
   app.config.globalProperties.$message = message;
   // Configure store
   setupStore(app);

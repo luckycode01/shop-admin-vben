@@ -73,3 +73,9 @@ export interface searchUsersResultModel {
   data: searchUserInfoModel;
   meta: metaInfo;
 }
+
+// 删除
+export interface deleteUsersResultModel {
+  data: null;
+  meta: metaInfo;
+}
