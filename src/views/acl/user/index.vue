@@ -52,13 +52,15 @@
         </template>
         <template #operation="{ column, record }">
           <template v-if="column.dataIndex === 'operation'">
-            <Button
-              type="primary"
-              shape="circle"
+            <HindButton
+              :title="'修改用户信息'"
+              :opt="editOpt"
               @click="handleOpenAddOrEdit(record.id)"
-              :size="size"
-              >修改</Button
             >
+              <template v-slot:icon>
+                <EditOutlined />
+              </template>
+            </HindButton>
             <popconfirm
               title="是否删除该用户?"
               ok-text="是"
@@ -66,8 +68,17 @@
               @confirm="confirmDelete(record.id)"
               @cancel="cancelDelete"
             >
-              <Button danger :size="size" shape="circle" class="ml-20px">删除</Button>
+              <HindButton :opt="deleteOpt" :title="'删除用户信息'" :danger="true">
+                <template v-slot:icon>
+                  <DeleteOutlined />
+                </template>
+              </HindButton>
             </popconfirm>
+            <HindButton :title="'分配权限'" :opt="setOpt" @click="handleClick">
+              <template v-slot:icon>
+                <SettingOutlined />
+              </template>
+            </HindButton>
           </template>
         </template>
       </Table>
@@ -116,7 +127,12 @@
 
 <script lang="ts" setup>
   import { message } from 'ant-design-vue';
-  import { PlusOutlined } from '@ant-design/icons-vue';
+  import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    SettingOutlined,
+  } from '@ant-design/icons-vue';
   import { RuleObject } from 'ant-design-vue/es/form/interface';
   import { ref, onMounted, reactive, UnwrapRef } from 'vue';
   import { UserParamsInfo, UsersListListModel, UserInfoModel } from '/@/api/acl/model/userModel';
@@ -146,6 +162,28 @@
     pagenum: 1,
     pagesize: 3,
   });
+  const editOpt = reactive({
+    size: 'small',
+    shape: 'circle',
+    type: 'primary',
+    btnText: '',
+  });
+  const deleteOpt = reactive({
+    size: 'small',
+    shape: 'circle',
+    type: 'primary',
+    btnText: '',
+    danger: true,
+  });
+  const setOpt = reactive({
+    size: 'small',
+    shape: 'circle',
+    type: 'primary',
+    btnText: '',
+  });
+  const handleClick = () => {
+    console.log(1);
+  };
   let checkUserName = async (_rule: RuleObject, value: string) => {
     if (!value) {
       return Promise.reject('请输入用户名称');

@@ -36,11 +36,15 @@ import {
   FormItem,
   Input,
   Popconfirm,
+  Tooltip,
 } from 'ant-design-vue';
+
+import HindButton from '/@/components/HintButton/index.vue';
 
 async function bootstrap() {
   const app = createApp(App);
 
+  app.component('HindButton', HindButton);
   app.component('Button', Button);
   app.component('Table', Table);
   app.component('InputSearch', InputSearch);
@@ -53,6 +57,7 @@ async function bootstrap() {
   app.component('FormItem', FormItem);
   app.component('Input', Input);
   app.component('Popconfirm', Popconfirm);
+  app.component('Tooltip', Tooltip);
   app.config.globalProperties.$message = message;
   // Configure store
   setupStore(app);
