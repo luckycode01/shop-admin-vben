@@ -1,50 +1,52 @@
+import { useI18n } from '/@/hooks/web/useI18n';
+const { t } = useI18n();
 export const columns = [
   {
-    title: '序号',
+    title: t('routes.acl.th.order'),
     dataIndex: 'index',
     className: '!text-center w-80px',
     slots: { customRender: 'index' },
   },
   {
-    title: '用户名 ',
+    title: t('routes.acl.th.uname'),
     dataIndex: 'username',
     className: '!text-center w-200px',
     width: 'width',
   },
   {
-    title: '邮箱',
+    title: t('routes.acl.th.email'),
     className: '!text-center ',
     dataIndex: 'email',
     width: 'width',
   },
   {
-    title: '电话',
+    title: t('routes.acl.th.phone'),
     className: '!text-center ',
     dataIndex: 'mobile',
     width: 'width',
   },
   {
-    title: '角色',
+    title: t('routes.acl.th.role'),
     className: '!text-center ',
     dataIndex: 'role_name',
     width: 'width',
   },
   {
-    title: '状态',
+    title: t('routes.acl.th.state'),
     className: '!text-center ',
     dataIndex: 'mg_state',
     width: 'width',
     slots: { customRender: 'mgState' },
   },
   {
-    title: '创建时间',
+    title: t('routes.acl.th.createTime'),
     className: '!text-center ',
     dataIndex: 'create_time',
     width: 'width',
     slots: { customRender: 'createTime' },
   },
   {
-    title: '操作',
+    title: t('routes.acl.th.operation'),
     className: '!text-center w-80px',
     width: 200,
     dataIndex: 'operation',

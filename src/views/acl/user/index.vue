@@ -5,7 +5,7 @@
         <Col span="6">
           <input-search
             v-model:value="userParams.query"
-            placeholder="请输入用户名"
+            :placeholder="t('routes.acl.header.placeholder')"
             enter-button
             @search="handleSearch"
             @change="handleSearch"
@@ -14,7 +14,7 @@
         <Col span="6">
           <Button type="primary" @click="handleOpenAddOrEdit()">
             <template #icon><plus-outlined /></template>
-            添加用户
+            {{ t('routes.acl.header.addBtn') }}
           </Button></Col
         >
       </Row>
@@ -32,7 +32,7 @@
           pageSizeOptions: ['3', '5', '10', '20'],
           showQuickJumper: true,
           showSizeChanger: true,
-          showTotal: (total) => `总共${total}条`,
+          showTotal: (total) => `${t('routes.acl.th.total')} ${total} ${t('routes.acl.th.total1')}`,
           onChange: handleChangePage,
           onShowSizeChange: handSizeChange,
         }"
@@ -53,7 +53,7 @@
         <template #operation="{ column, record }">
           <template v-if="column.dataIndex === 'operation'">
             <HindButton
-              :title="'修改用户信息'"
+              :title="t('routes.acl.tip.updateUser')"
               :opt="editOpt"
               @click="handleOpenAddOrEdit(record.id)"
             >
@@ -62,19 +62,19 @@
               </template>
             </HindButton>
             <popconfirm
-              title="是否删除该用户?"
-              ok-text="是"
-              cancel-text="否"
+              :title="t('routes.acl.tip.isDel')"
+              :ok-text="t('routes.acl.yes')"
+              :cancel-text="t('routes.acl.no')"
               @confirm="confirmDelete(record.id)"
               @cancel="cancelDelete"
             >
-              <HindButton :opt="deleteOpt" :title="'删除用户信息'" :danger="true">
+              <HindButton :opt="deleteOpt" :title="t('routes.acl.tip.delUser')" :danger="true">
                 <template v-slot:icon>
                   <DeleteOutlined />
                 </template>
               </HindButton>
             </popconfirm>
-            <HindButton :title="'分配权限'" :opt="setOpt" @click="handleClick">
+            <HindButton :title="t('routes.acl.tip.assignRoles')" :opt="setOpt" @click="handleClick">
               <template v-slot:icon>
                 <SettingOutlined />
               </template>
@@ -86,10 +86,10 @@
 
     <Modal v-model:visible="addOrEditUserDialog" :title="dialogTitle" @cancel="closeDialog">
       <template #footer>
-        <a-button key="back" @click="handleCancel">取消</a-button>
-        <a-button key="submit" type="primary" :loading="loading" @click="handleAddOrEditOk"
-          >确定</a-button
-        >
+        <a-button key="back" @click="handleCancel">{{ t('routes.acl.backBtn') }}</a-button>
+        <a-button key="submit" type="primary" :loading="loading" @click="handleAddOrEditOk">{{
+          t('routes.acl.okBtn')
+        }}</a-button>
       </template>
       <Form
         class="!mt-30px !ml-20px"
@@ -99,16 +99,16 @@
         :label-col="{ span: 5 }"
         :wrapper-col="{ span: 14 }"
       >
-        <FormItem :label="'用户名称'" name="username">
+        <FormItem :label="t('routes.acl.form.userName')" name="username">
           <Input v-model:value="userInfo.username" :disabled="userInfo.id ? true : false" />
         </FormItem>
-        <FormItem v-if="!userInfo.id" :label="'用户密码'" name="password">
+        <FormItem v-if="!userInfo.id" :label="t('routes.acl.form.userpass')" name="password">
           <Input v-model:value="userInfo.password" />
         </FormItem>
-        <FormItem :label="'用户邮箱'" name="email">
+        <FormItem :label="t('routes.acl.form.useremail')" name="email">
           <Input v-model:value="userInfo.email" />
         </FormItem>
-        <FormItem :label="'用户电话'" name="mobile">
+        <FormItem :label="t('routes.acl.form.userephone')" name="mobile">
           <Input v-model:value="userInfo.mobile" />
         </FormItem>
       </Form>
@@ -118,7 +118,6 @@
 
 <script lang="ts">
   import { defineComponent } from 'vue';
-  import { SizeType } from 'ant-design-vue/lib/config-provider';
   // 为了定义组件名称
   export default defineComponent({
     name: 'User',
@@ -147,11 +146,12 @@
   import { columns } from './userIndex';
   import { dateFormat } from '/@/utils/dateFormat';
   import _ from 'lodash';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  const { t } = useI18n();
 
   let current = ref<number>(1);
   let pageSize = ref<number>(3);
   let total = ref<number>(100);
-  const size = ref<SizeType>('small');
   let loading = ref<boolean>(false);
   const usersList = ref<UsersListListModel>([]);
   let addOrEditUserDialog = ref<Boolean>(false);
@@ -186,20 +186,20 @@
   };
   let checkUserName = async (_rule: RuleObject, value: string) => {
     if (!value) {
-      return Promise.reject('请输入用户名称');
+      return Promise.reject(`${t('routes.acl.header.placeholder')}`);
     }
     if (value.length > 15 || value.length < 3) {
-      return Promise.reject('用户名长度为3—15个字符');
+      return Promise.reject(`${t('routes.acl.tip.userLen')}`);
     } else {
       return Promise.resolve();
     }
   };
   let checkUserPass = async (_rule: RuleObject, value: string) => {
     if (!value) {
-      return Promise.reject('请输入用户密码');
+      return Promise.reject(`${t('routes.acl.tip.inputPass')}`);
     }
     if (value.length > 15 || value.length < 6) {
-      return Promise.reject('用户名长度为6—15个字符');
+      return Promise.reject(`${t('routes.acl.tip.passLen')}`);
     } else {
       return Promise.resolve();
     }
@@ -208,7 +208,7 @@
     const reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
     if (!value) return Promise.resolve();
     if (!reg.test(value)) {
-      return Promise.reject('邮箱格式有误');
+      return Promise.reject(`${t('routes.acl.tip.emailErr')}`);
     } else {
       return Promise.resolve();
     }
@@ -217,7 +217,7 @@
     const reg = /^1[34578]\d{9}/;
     if (!value) return Promise.resolve();
     if (!reg.test(value)) {
-      return Promise.reject('请输入正确手机号');
+      return Promise.reject(`${t('routes.acl.tip.phoneErr')}`);
     } else {
       return Promise.resolve();
     }
@@ -239,7 +239,7 @@
   // 打开添加修改对话框
   const handleOpenAddOrEdit = async (id?: number) => {
     if (id) {
-      dialogTitle.value = '编辑用户';
+      dialogTitle.value = t('routes.acl.tip.editUser');
       userInfo.id = id;
       try {
         const res = await searchUserInfoApi(id);
@@ -251,10 +251,10 @@
           message.error(res.meta.msg);
         }
       } catch (error) {
-        message.error('用户查询失败');
+        message.error(`${t('routes.acl.tip.serchErr')}`);
       }
     } else {
-      dialogTitle.value = '添加用户';
+      dialogTitle.value = t('routes.acl.header.addBtn');
     }
     addOrEditUserDialog.value = true;
   };
@@ -292,7 +292,7 @@
       }
       getUserList();
     } catch (errorInfo) {
-      message.error('用户信息不完整');
+      message.error(`${t('routes.acl.tip.userInfoErr')}`);
     }
   };
   const handleCancel = () => {
