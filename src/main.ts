@@ -37,6 +37,8 @@ import {
   Input,
   Popconfirm,
   Tooltip,
+  Steps,
+  Step,
 } from 'ant-design-vue';
 
 import HindButton from '/@/components/HintButton/index.vue';
@@ -58,6 +60,8 @@ async function bootstrap() {
   app.component('Input', Input);
   app.component('Popconfirm', Popconfirm);
   app.component('Tooltip', Tooltip);
+  app.component('Steps', Steps);
+  app.component('Step', Step);
   app.config.globalProperties.$message = message;
   // Configure store
   setupStore(app);

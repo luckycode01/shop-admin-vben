@@ -7,4 +7,5 @@ export default {
   productList: 'Product List',
   cateParams: 'Cate params',
   productCate: 'Product Cate',
+  addoreditprod: 'add prod',
 };

@@ -7,4 +7,5 @@ export default {
   productList: '商品列表',
   cateParams: '分类参数',
   productCate: '商品分类',
+  addoreditprod: '添加商品',
 };

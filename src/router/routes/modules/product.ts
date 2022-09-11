@@ -25,6 +25,15 @@ const product: AppRouteModule = {
       },
     },
     {
+      path: 'addoreditprod',
+      name: 'addOrEditProd',
+      component: () => import('/@/views/product/addOrEditProd/index.vue'),
+      meta: {
+        // affix: true,
+        title: t('routes.product.addoreditprod'),
+      },
+    },
+    {
       path: 'cateparams',
       name: 'Cateparams',
       component: () => import('/@/views/product/cateParams/index.vue'),

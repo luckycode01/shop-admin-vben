@@ -15,7 +15,7 @@
           />
         </Col>
         <Col span="6">
-          <Button type="primary">
+          <Button type="primary" @click="toAddOrEditProd">
             <template #icon><plus-outlined /></template>
             添加商品
           </Button>
@@ -75,6 +75,7 @@
   import { productParamsInfo, UsersListListModel } from '/@/api/product/model/productModel';
   import { getProductListApi } from '/@/api/product/product';
   import { dateFormat } from '/@/utils/dateFormat';
+  import { useRouter } from 'vue-router';
   import _ from 'lodash';
 
   const columns = [
@@ -119,6 +120,7 @@
       slots: { customRender: 'operation' },
     },
   ];
+  const router = useRouter();
   const current = ref<number>(1);
   const pageSize = ref<number>(10);
   const total = ref<number>(100);
@@ -143,6 +145,12 @@
       total.value = res.data.total;
     }
     loading.value = false;
+  };
+  const toAddOrEditProd = () => {
+    router.push({
+      name: 'addOrEditProd',
+      query: {},
+    });
   };
   const handSizeChange = (currentPage, size) => {
     if (currentPage == 1) current.value = currentPage;
