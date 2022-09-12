@@ -28,3 +28,30 @@ export interface productResultModel {
   data: DataResUltModel;
   meta: metaInfo;
 }
+
+// 分类管理
+export interface categoryParamsInfo {
+  type?: number;
+  pagenum: number;
+  pagesize: number;
+}
+export interface categoryListInfo {
+  cat_id: number;
+  cat_name: string;
+  cat_pid: number;
+  cat_level: number;
+  cat_deleted: boolean;
+  children: Array<[]>;
+}
+export type categorytListModel = categoryListInfo[];
+
+export interface cateDataResultModel {
+  total: number;
+  pagenum: number;
+  result: categorytListModel;
+}
+// 用户列表返回
+export interface categoryResultModel {
+  data: cateDataResultModel;
+  meta: metaInfo;
+}
