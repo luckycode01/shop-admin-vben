@@ -39,6 +39,7 @@ import {
   Tooltip,
   Steps,
   Step,
+  Tag,
 } from 'ant-design-vue';
 
 import HindButton from '/@/components/HintButton/index.vue';
@@ -62,6 +63,7 @@ async function bootstrap() {
   app.component('Tooltip', Tooltip);
   app.component('Steps', Steps);
   app.component('Step', Step);
+  app.component('Tag', Tag);
   app.config.globalProperties.$message = message;
   // Configure store
   setupStore(app);

@@ -3,7 +3,7 @@
     <Card>
       <Row :gutter="24">
         <Col span="6">
-          <Button type="primary" @click="toAddOrEditProd">
+          <Button type="primary" @click="toAddCategory">
             <template #icon><plus-outlined /></template>
             添加商品分类
           </Button>
@@ -32,9 +32,17 @@
             {{ index + 1 }}
           </template>
         </template>
-        <template #create_time="{ text, column }">
-          <template v-if="column.dataIndex === 'createTime'">
-            {{ dateFormat(text) }}
+        <template #cat_deleted="{ text, column }">
+          <template v-if="column.dataIndex === 'cat_deleted'">
+            <Tag v-if="text == false" style="border-radius: 50%" color="#f50">X</Tag>
+            <Tag v-else="text == true" style="border-radius: 50%" color="green">V</Tag>
+          </template>
+        </template>
+        <template #cat_level="{ text, column }">
+          <template v-if="column.dataIndex === 'cat_level'">
+            <Tag v-if="text == 0" color="green">一级</Tag>
+            <Tag v-if="text == 1" color="cyan">二级</Tag>
+            <Tag v-if="text == 2" color="orange">三级</Tag>
           </template>
         </template>
         <template #operation="{ column }">
@@ -61,7 +69,6 @@
   import { PlusOutlined } from '@ant-design/icons-vue';
   import { categorytListModel, categoryParamsInfo } from '/@/api/product/model/productModel';
   import { getCategoryListApi } from '/@/api/product/product';
-  import { dateFormat } from '/@/utils/dateFormat';
   import { useRouter } from 'vue-router';
   import _ from 'lodash';
 
@@ -74,7 +81,7 @@
     },
     {
       title: '分类名称',
-      dataIndex: 'goods_name',
+      dataIndex: 'cat_name',
       className: '!text-center w-200px',
       width: '50px',
       ellipsis: false,
@@ -82,14 +89,16 @@
     {
       title: '是否有效',
       className: '!text-center ',
-      dataIndex: 'goods_price',
+      dataIndex: 'cat_deleted',
       width: '150px',
+      slots: { customRender: 'cat_deleted' },
     },
     {
       title: '分类级别',
       className: '!text-center ',
-      dataIndex: 'goods_weight',
+      dataIndex: 'cat_level',
       width: '150px',
+      slots: { customRender: 'cat_level' },
     },
     {
       title: '操作',
@@ -122,12 +131,7 @@
     }
     loading.value = false;
   };
-  const toAddOrEditProd = () => {
-    router.push({
-      name: 'addOrEditProd',
-      query: {},
-    });
-  };
+  const toAddCategory = () => {};
   const handSizeChange = (currentPage, size) => {
     if (currentPage == 1) current.value = currentPage;
     else current.value = 1;
