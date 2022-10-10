@@ -2,13 +2,16 @@
   <div>
     <Card>
       <Row :gutter="24">
-        <Col span="10">
+        <Col span="8">
           <input-search
             v-model:value="productKey"
             :placeholder="'请输入商品信息'"
             enter-button
+            clear
+            allow-clear
             @search="handleSearch"
             @change="handleSearch"
+            @pressEnter="handleSearch"
           />
         </Col>
         <Col span="6">
@@ -29,7 +32,7 @@
           current,
           pageSize,
           total,
-          pageSizeOptions: ['3', '6', ' 9', '12'],
+          pageSizeOptions: ['10', '20', '50', '100'],
           showQuickJumper: true,
           showSizeChanger: true,
           showTotal: (total) => `总共${total}条`,
@@ -117,7 +120,7 @@
     },
   ];
   const current = ref<number>(1);
-  const pageSize = ref<number>(3);
+  const pageSize = ref<number>(10);
   const total = ref<number>(100);
   const size = ref<SizeType>('small');
   const loading = ref<boolean>(false);

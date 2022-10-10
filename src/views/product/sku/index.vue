@@ -1,5 +1,5 @@
 <template>
-  <div>Sku</div>
+  <div>功能开发中~~~~~~~</div>
 </template>
 
 <script lang="ts">
